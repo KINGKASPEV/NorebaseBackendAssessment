@@ -7,11 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Interfaces\IServices\" />
-    <Folder Include="Services\" />
-  </ItemGroup>
-
-  <ItemGroup>
+    <ProjectReference Include="..\NorebaseLikeFeature.Application\NorebaseLikeFeature.Application.csproj" />
     <ProjectReference Include="..\NorebaseLikeFeature.Domain\NorebaseLikeFeature.Domain.csproj" />
   </ItemGroup>
 
