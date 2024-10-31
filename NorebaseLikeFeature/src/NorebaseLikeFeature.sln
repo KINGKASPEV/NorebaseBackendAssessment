@@ -1,0 +1,37 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.9.34728.123
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{A3B61106-F43D-4860-844F-743859B440BF}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NorebaseLikeFeature.API", "NorebaseLikeFeature.API\NorebaseLikeFeature.API.csproj", "{C1155B72-D058-401D-BC54-A2C101E48FD9}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NorebaseLikeFeature.Application", "NorebaseLikeFeature.Application\NorebaseLikeFeature.Application.csproj", "{F1ED9DB5-AC8C-412C-AE29-1070D02EEDA5}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{C1155B72-D058-401D-BC54-A2C101E48FD9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C1155B72-D058-401D-BC54-A2C101E48FD9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C1155B72-D058-401D-BC54-A2C101E48FD9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C1155B72-D058-401D-BC54-A2C101E48FD9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F1ED9DB5-AC8C-412C-AE29-1070D02EEDA5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F1ED9DB5-AC8C-412C-AE29-1070D02EEDA5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F1ED9DB5-AC8C-412C-AE29-1070D02EEDA5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F1ED9DB5-AC8C-412C-AE29-1070D02EEDA5}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{C1155B72-D058-401D-BC54-A2C101E48FD9} = {A3B61106-F43D-4860-844F-743859B440BF}
+		{F1ED9DB5-AC8C-412C-AE29-1070D02EEDA5} = {A3B61106-F43D-4860-844F-743859B440BF}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {ABA16A96-F10A-4066-918E-2D8E5BF44E74}
+	EndGlobalSection
+EndGlobal
