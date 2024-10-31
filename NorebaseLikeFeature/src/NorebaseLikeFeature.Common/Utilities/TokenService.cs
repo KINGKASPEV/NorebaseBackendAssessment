@@ -1,5 +1,6 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
+using NorebaseLikeFeature.Common.Config;
 using NorebaseLikeFeature.Domain.User;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -9,10 +10,12 @@ namespace NorebaseLikeFeature.Common.Utilities
 {
     public static class TokenService
     {
-        public static string GenerateJwtToken(ApplicationUser user, IConfiguration configuration)
+        public static string GenerateJwtToken(ApplicationUser user, IOptions<AuthSettings> options)
         {
+            var authSettings = options.Value; 
+
             var tokenHandler = new JwtSecurityTokenHandler();
-            var key = Encoding.ASCII.GetBytes(configuration["Jwt:Secret"]); 
+            var key = Encoding.ASCII.GetBytes(authSettings.SecretKey); 
             var tokenDescriptor = new SecurityTokenDescriptor
             {
                 Subject = new ClaimsIdentity(new[]
@@ -21,7 +24,10 @@ namespace NorebaseLikeFeature.Common.Utilities
                     new Claim(ClaimTypes.Email, user.Email),
                     new Claim(ClaimTypes.Name, user.UserName)
                 }),
-                Expires = DateTime.UtcNow.AddDays(7),
+                Expires = DateTime.UtcNow.AddDays(authSettings.TokenLifeTimeDays)
+                                         .AddHours(authSettings.TokenLifeTimeInHours), 
+                Issuer = authSettings.Issuer,
+                Audience = authSettings.Audience,
                 SigningCredentials = new SigningCredentials(
                     new SymmetricSecurityKey(key),
                     SecurityAlgorithms.HmacSha256Signature)

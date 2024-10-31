@@ -7,11 +7,12 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Interfaces\IServices\" />
-    <Folder Include="Services\" />
+    <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.1.1" />
+    <PackageReference Include="StackExchange.Redis" Version="2.8.16" />
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\NorebaseLikeFeature.Common\NorebaseLikeFeature.Common.csproj" />
     <ProjectReference Include="..\NorebaseLikeFeature.Domain\NorebaseLikeFeature.Domain.csproj" />
   </ItemGroup>
 

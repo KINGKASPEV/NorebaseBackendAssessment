@@ -8,7 +8,7 @@ namespace NorebaseLikeFeature.Infrastructure.Context
     public class AppDbContext : IdentityDbContext<ApplicationUser>
     {
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
-        public DbSet<ArticleLike>? ArticleLikes { get; set; }
+        public DbSet<ArticleLike> ArticleLikes { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
