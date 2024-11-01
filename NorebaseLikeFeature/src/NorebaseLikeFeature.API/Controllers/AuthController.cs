@@ -24,15 +24,5 @@ namespace NorebaseLikeFeature.API.Controllers
             var response = await _authService.RegisterAsync(request);
             return StatusCode(response.StatusCode, response);
         }
-
-        [HttpPost("login")]
-        public async Task<IActionResult> Login([FromBody] LoginRequest request)
-        {
-            if (!ModelState.IsValid)
-                return StatusCode(StatusCodes.Status400BadRequest, ModelState);
-
-            var response = await _authService.LoginAsync(request);
-            return StatusCode(response.StatusCode, response);
-        }
     }
 }

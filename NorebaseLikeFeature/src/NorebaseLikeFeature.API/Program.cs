@@ -1,8 +1,6 @@
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
-using Microsoft.IdentityModel.Tokens;
 using NorebaseLikeFeature.Application.Interfaces.IRepositories;
 using NorebaseLikeFeature.Application.Interfaces.IServices;
 using NorebaseLikeFeature.Application.Middlewares;
@@ -11,7 +9,6 @@ using NorebaseLikeFeature.Domain.User;
 using NorebaseLikeFeature.Persistence.Context;
 using NorebaseLikeFeature.Persistence.Repositories;
 using StackExchange.Redis;
-using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -40,26 +37,6 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
     .AddEntityFrameworkStores<AppDbContext>()
     .AddDefaultTokenProviders();
 
-// Authentication configuration
-builder.Services.AddAuthentication(options =>
-{
-    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-})
-.AddJwtBearer(options =>
-{
-    options.TokenValidationParameters = new TokenValidationParameters
-    {
-        ValidateIssuerSigningKey = true,
-        IssuerSigningKey = new SymmetricSecurityKey(
-            Encoding.ASCII.GetBytes(builder.Configuration["AuthSettings:SecretKey"])),
-        ValidateIssuer = false,
-        ValidateAudience = false,
-        ValidateLifetime = true,
-        ClockSkew = TimeSpan.Zero
-    };
-});
-
 builder.Services.AddHealthChecks()
     .AddDbContextCheck<AppDbContext>()
     .AddCheck("Redis", () =>
@@ -81,12 +58,10 @@ builder.Services.AddHealthChecks()
         }
     });
 
-// Add this before builder.Build()
 builder.Services.AddCustomRateLimiterServices();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();

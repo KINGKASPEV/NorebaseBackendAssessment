@@ -9,7 +9,5 @@ namespace NorebaseLikeFeature.Application.Interfaces.IRepositories
         Task<Article> CreateAsync(Article article);
         Task<Article> UpdateAsync(Article article);
         Task DeleteAsync(string id);
-        Task<bool> ExistsAsync(string id);
-       
     }
 }

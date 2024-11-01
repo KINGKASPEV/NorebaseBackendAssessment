@@ -55,11 +55,6 @@ namespace NorebaseLikeFeature.Persistence.Repositories
                 await _context.SaveChangesAsync();
             }
         }
-
-        public async Task<bool> ExistsAsync(string id)
-        {
-            return await _context.Articles.AnyAsync(a => a.Id == id);
-        }
     }
 }
 

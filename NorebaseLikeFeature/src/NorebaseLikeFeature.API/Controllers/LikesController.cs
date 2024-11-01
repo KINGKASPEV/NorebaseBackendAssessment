@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using NorebaseLikeFeature.Application.Interfaces.IServices;
-using System.Security.Claims;
 
 namespace NorebaseLikeFeature.API.Controllers
 {
@@ -16,18 +15,21 @@ namespace NorebaseLikeFeature.API.Controllers
         }
 
         [HttpGet("{articleId}")]
-        public async Task<IActionResult> GetLikes(string articleId)
+        public async Task<IActionResult> GetLikes(string articleId, string userId)
         {
-            var userId = User.Identity?.IsAuthenticated == true ?
-                User.FindFirst(ClaimTypes.NameIdentifier)?.Value : null;
+            if (!ModelState.IsValid)
+                return StatusCode(StatusCodes.Status400BadRequest, ModelState);
+
             var response = await _likeService.GetLikesAsync(articleId, userId);
             return StatusCode(response.StatusCode, response);
         }
 
         [HttpPost("{articleId}/toggle")]
-        public async Task<IActionResult> ToggleLike(string articleId)
+        public async Task<IActionResult> ToggleLike(string articleId, string userId)
         {
-            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (!ModelState.IsValid)
+                return StatusCode(StatusCodes.Status400BadRequest, ModelState);
+
             var response = await _likeService.ToggleLikeAsync(articleId, userId);
             return StatusCode(response.StatusCode, response);
         }
