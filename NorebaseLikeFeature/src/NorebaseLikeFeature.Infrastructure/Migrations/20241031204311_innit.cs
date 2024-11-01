@@ -3,9 +3,9 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-namespace NorebaseLikeFeature.Infrastructure.Migrations
+namespace NorebaseLikeFeature.Persistence.Migrations
 {
-    public partial class Innit : Migration
+    public partial class innit : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {

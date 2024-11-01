@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
 using NorebaseLikeFeature.Application.DTOs.Response;
 using NorebaseLikeFeature.Application.Interfaces.IRepositories;
@@ -6,6 +7,7 @@ using NorebaseLikeFeature.Application.Interfaces.IServices;
 using NorebaseLikeFeature.Common.Responses;
 using NorebaseLikeFeature.Common.Utilities;
 using NorebaseLikeFeature.Domain.Article;
+using NorebaseLikeFeature.Domain.User;
 using StackExchange.Redis;
 
 namespace NorebaseLikeFeature.Application.Services
@@ -14,15 +16,21 @@ namespace NorebaseLikeFeature.Application.Services
     {
         private readonly IArticleLikeRepository _repository;
         private readonly IConnectionMultiplexer _redis;
+        private readonly UserManager<ApplicationUser> _userManager;
+        private readonly IArticleRepository _articleRepository;
         private readonly ILogger<LikeService> _logger;
 
         public LikeService(
             IArticleLikeRepository repository,
             IConnectionMultiplexer redis,
+            UserManager<ApplicationUser> userManager,
+             IArticleRepository articleRepository,
             ILogger<LikeService> logger)
         {
             _repository = repository;
             _redis = redis;
+            _userManager = userManager;
+            _articleRepository = articleRepository;
             _logger = logger;
         }
 
@@ -31,6 +39,22 @@ namespace NorebaseLikeFeature.Application.Services
             var response = new Response<LikeResponse>();
             try
             {
+                var article = await _articleRepository.GetByIdAsync(articleId);
+                if (article is null)
+                {
+                    response.StatusCode = StatusCodes.Status404NotFound;
+                    response.Message = Constants.ArticleNotFoundMessage;
+                    return response;
+                }
+
+                var user = await _userManager.FindByIdAsync(userId);
+                if (user is null)
+                {
+                    response.StatusCode = StatusCodes.Status404NotFound;
+                    response.Message = Constants.UserNotFoundMessage;
+                    return response;
+                }
+
                 var db = _redis.GetDatabase();
                 var cacheKey = $"article:{articleId}:likes";
                 var cachedCount = await db.StringGetAsync(cacheKey);
@@ -72,9 +96,18 @@ namespace NorebaseLikeFeature.Application.Services
             var response = new Response<LikeResponse>();
             try
             {
-                if (string.IsNullOrEmpty(userId))
+                var article = await _articleRepository.GetByIdAsync(articleId);
+                if (article is null)
                 {
-                    response.StatusCode = StatusCodes.Status401Unauthorized;
+                    response.StatusCode = StatusCodes.Status404NotFound;
+                    response.Message = Constants.ArticleNotFoundMessage;
+                    return response;
+                }
+
+                var user = await _userManager.FindByIdAsync(userId);
+                if (user is null)
+                {
+                    response.StatusCode = StatusCodes.Status404NotFound;
                     response.Message = Constants.UserNotFoundMessage;
                     return response;
                 }

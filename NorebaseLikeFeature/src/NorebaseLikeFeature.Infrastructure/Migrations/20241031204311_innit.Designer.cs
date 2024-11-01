@@ -5,15 +5,15 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using NorebaseLikeFeature.Infrastructure.Context;
+using NorebaseLikeFeature.Persistence.Context;
 
 #nullable disable
 
-namespace NorebaseLikeFeature.Infrastructure.Migrations
+namespace NorebaseLikeFeature.Persistence.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20241031160229_Innit")]
-    partial class Innit
+    [Migration("20241031204311_innit")]
+    partial class innit
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {

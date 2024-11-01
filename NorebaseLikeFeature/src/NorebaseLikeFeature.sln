@@ -13,7 +13,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NorebaseLikeFeature.Domain"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NorebaseLikeFeature.Common", "NorebaseLikeFeature.Common\NorebaseLikeFeature.Common.csproj", "{6CC9B25D-5980-41B6-96E6-146A5455A050}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NorebaseLikeFeature.Infrastructure", "NorebaseLikeFeature.Infrastructure\NorebaseLikeFeature.Infrastructure.csproj", "{FE9DD2C0-3362-4B2F-96BF-D87E292A7294}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NorebaseLikeFeature.Persistence", "NorebaseLikeFeature.Infrastructure\NorebaseLikeFeature.Persistence.csproj", "{FE9DD2C0-3362-4B2F-96BF-D87E292A7294}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

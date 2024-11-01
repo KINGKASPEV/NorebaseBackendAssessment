@@ -1,5 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using NorebaseLikeFeature.Application.DTOs;
+using NorebaseLikeFeature.Application.DTOs.Auth;
 using NorebaseLikeFeature.Application.Interfaces.IServices;
 
 namespace NorebaseLikeFeature.API.Controllers

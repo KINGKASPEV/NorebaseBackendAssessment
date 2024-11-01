@@ -1,9 +1,9 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using NorebaseLikeFeature.Application.Interfaces.IRepositories;
 using NorebaseLikeFeature.Domain.Article;
-using NorebaseLikeFeature.Infrastructure.Context;
+using NorebaseLikeFeature.Persistence.Context;
 
-namespace NorebaseLikeFeature.Infrastructure.Repositories
+namespace NorebaseLikeFeature.Persistence.Repositories
 {
     public class ArticleLikeRepository : IArticleLikeRepository
     {

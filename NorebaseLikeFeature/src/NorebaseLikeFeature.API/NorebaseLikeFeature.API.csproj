@@ -20,7 +20,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\NorebaseLikeFeature.Application\NorebaseLikeFeature.Application.csproj" />
-    <ProjectReference Include="..\NorebaseLikeFeature.Infrastructure\NorebaseLikeFeature.Infrastructure.csproj" />
+    <ProjectReference Include="..\NorebaseLikeFeature.Infrastructure\NorebaseLikeFeature.Persistence.csproj" />
   </ItemGroup>
 
 </Project>

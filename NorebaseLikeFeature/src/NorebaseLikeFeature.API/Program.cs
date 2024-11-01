@@ -1,16 +1,16 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.IdentityModel.Tokens;
 using NorebaseLikeFeature.Application.Interfaces.IRepositories;
 using NorebaseLikeFeature.Application.Interfaces.IServices;
+using NorebaseLikeFeature.Application.Middlewares;
 using NorebaseLikeFeature.Application.Services;
-using Microsoft.Extensions.Diagnostics.HealthChecks;
 using NorebaseLikeFeature.Domain.User;
-using NorebaseLikeFeature.Infrastructure.Context;
-using NorebaseLikeFeature.Infrastructure.Repositories;
+using NorebaseLikeFeature.Persistence.Context;
+using NorebaseLikeFeature.Persistence.Repositories;
 using StackExchange.Redis;
-
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -32,6 +32,8 @@ builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
 builder.Services.AddScoped<IArticleLikeRepository, ArticleLikeRepository>();
 builder.Services.AddScoped<ILikeService, LikeService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IArticleRepository, ArticleRepository>();
+builder.Services.AddScoped<IArticleService, ArticleService>();
 
 // Identity configuration
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
@@ -50,28 +52,13 @@ builder.Services.AddAuthentication(options =>
     {
         ValidateIssuerSigningKey = true,
         IssuerSigningKey = new SymmetricSecurityKey(
-            Encoding.ASCII.GetBytes(builder.Configuration["Jwt:Secret"])),
+            Encoding.ASCII.GetBytes(builder.Configuration["AuthSettings:SecretKey"])),
         ValidateIssuer = false,
         ValidateAudience = false,
         ValidateLifetime = true,
         ClockSkew = TimeSpan.Zero
     };
 });
-
-// Rate limiting configuration
-//builder.Services.AddRateLimiter(options =>
-//{
-//    options.GlobalLimiter = PartitionedRateLimiter.Create<HttpContext, string>(context =>
-//        RateLimitPartition.GetFixedWindowLimiter(
-//            partitionKey: context.Connection.RemoteIpAddress?.ToString() ?? "Unknown",
-//            factory: partition => new FixedWindowRateLimiterOptions
-//            {
-//                PermitLimit = 10,
-//                Window = TimeSpan.FromSeconds(1)
-//            }));
-
-//    options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
-//});
 
 builder.Services.AddHealthChecks()
     .AddDbContextCheck<AppDbContext>()
@@ -94,6 +81,9 @@ builder.Services.AddHealthChecks()
         }
     });
 
+// Add this before builder.Build()
+builder.Services.AddCustomRateLimiterServices();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline
@@ -104,7 +94,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-//app.UseRateLimiter();
+app.UseCustomRateLimiter();
+
 app.UseAuthentication();
 app.UseAuthorization();
 

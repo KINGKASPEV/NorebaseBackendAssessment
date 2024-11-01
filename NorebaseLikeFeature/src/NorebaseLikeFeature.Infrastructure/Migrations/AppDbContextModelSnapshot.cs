@@ -4,11 +4,11 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using NorebaseLikeFeature.Infrastructure.Context;
+using NorebaseLikeFeature.Persistence.Context;
 
 #nullable disable
 
-namespace NorebaseLikeFeature.Infrastructure.Migrations
+namespace NorebaseLikeFeature.Persistence.Migrations
 {
     [DbContext(typeof(AppDbContext))]
     partial class AppDbContextModelSnapshot : ModelSnapshot

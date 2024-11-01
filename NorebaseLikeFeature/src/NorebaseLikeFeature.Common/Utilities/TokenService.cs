@@ -22,7 +22,7 @@ namespace NorebaseLikeFeature.Common.Utilities
                 {
                     new Claim(ClaimTypes.NameIdentifier, user.Id),
                     new Claim(ClaimTypes.Email, user.Email),
-                    new Claim(ClaimTypes.Name, user.UserName)
+                    new Claim(ClaimTypes.Email, user.UserName)
                 }),
                 Expires = DateTime.UtcNow.AddDays(authSettings.TokenLifeTimeDays)
                                          .AddHours(authSettings.TokenLifeTimeInHours), 

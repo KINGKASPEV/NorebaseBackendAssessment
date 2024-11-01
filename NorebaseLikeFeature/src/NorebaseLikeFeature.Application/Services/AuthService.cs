@@ -1,9 +1,8 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using NorebaseLikeFeature.Application.DTOs;
+using NorebaseLikeFeature.Application.DTOs.Auth;
 using NorebaseLikeFeature.Application.DTOs.Response;
 using NorebaseLikeFeature.Application.Interfaces.IServices;
 using NorebaseLikeFeature.Common.Config;
@@ -29,11 +28,12 @@ namespace NorebaseLikeFeature.Application.Services
             _logger = logger;
         }
 
-        public async Task<Response<AuthResponse>> RegisterAsync(RegisterRequest request)
+        public async Task<Response<RegisterResponse>> RegisterAsync(RegisterRequest request)
         {
-            var response = new Response<AuthResponse>();
+            var response = new Response<RegisterResponse>();
             try
             {
+                var normalizedEmail = request.Email.ToLowerInvariant();
                 var existingUser = await _userManager.FindByEmailAsync(request.Email);
                 if (existingUser is not null)
                 {
@@ -60,17 +60,15 @@ namespace NorebaseLikeFeature.Application.Services
                     response.Message = Constants.FailedMessage;
                     return response;
                 }
-
-                var authResponse = new AuthResponse
+                var registerResponse = new RegisterResponse
                 {
-                    Token = TokenService.GenerateJwtToken(user, _jwtData),
-                    Username = user.UserName,
+                    Id = user.Id,
                     Email = user.Email
                 };
 
                 response.StatusCode = StatusCodes.Status200OK;
                 response.Message = Constants.SuccessMessage;
-                response.Data = authResponse;
+                response.Data = registerResponse;
 
                 return response;
             }
