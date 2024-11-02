@@ -13,6 +13,7 @@
         public const string ArticleCreationSuccessMessage = "Article created successfully";
         public const string ArticleCreationFailedMessage = "Failed to create the article";
         public const string InvalidArticleDataMessage = "Article title and content are required";
+        public const string InvalidLikeDataMessage = "ArticleId and userId are required";
         public const string ArticleUpdateSuccessMessage = "Article updated successfully";
         public const string ArticleDeletionSuccessMessage = "Article deleted successfully";
         public const string NoArticlesFoundMessage = "No articles found";

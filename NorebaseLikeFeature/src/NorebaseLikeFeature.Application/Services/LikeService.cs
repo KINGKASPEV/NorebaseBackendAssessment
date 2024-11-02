@@ -42,6 +42,13 @@ namespace NorebaseLikeFeature.Application.Services
             var response = new Response<LikeResponse>();
             try
             {
+                if (string.IsNullOrWhiteSpace(articleId) || string.IsNullOrWhiteSpace(userId))
+                {
+                    response.StatusCode = StatusCodes.Status400BadRequest;
+                    response.Message = Constants.InvalidLikeDataMessage;
+                    return response;
+                }
+
                 var article = await _articleRepository.GetByIdAsync(articleId);
                 if (article is null)
                 {
@@ -107,6 +114,13 @@ namespace NorebaseLikeFeature.Application.Services
             var response = new Response<LikeResponse>();
             try
             {
+                if (string.IsNullOrWhiteSpace(articleId) || string.IsNullOrWhiteSpace(userId))
+                {
+                    response.StatusCode = StatusCodes.Status400BadRequest;
+                    response.Message = Constants.InvalidLikeDataMessage;
+                    return response;
+                }
+
                 if (!await _likeRateLimiter.CanPerformLikeActionAsync(userId))
                 {
                     response.StatusCode = StatusCodes.Status429TooManyRequests;
