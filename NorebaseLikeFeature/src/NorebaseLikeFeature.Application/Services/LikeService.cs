@@ -17,6 +17,7 @@ namespace NorebaseLikeFeature.Application.Services
         private readonly IArticleLikeRepository _repository;
         private readonly IConnectionMultiplexer _redis;
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly ILikeRateLimiter _likeRateLimiter;
         private readonly IArticleRepository _articleRepository;
         private readonly ILogger<LikeService> _logger;
 
@@ -24,12 +25,14 @@ namespace NorebaseLikeFeature.Application.Services
             IArticleLikeRepository repository,
             IConnectionMultiplexer redis,
             UserManager<ApplicationUser> userManager,
+            ILikeRateLimiter likeRateLimiter,
              IArticleRepository articleRepository,
             ILogger<LikeService> logger)
         {
             _repository = repository;
             _redis = redis;
             _userManager = userManager;
+            _likeRateLimiter = likeRateLimiter;
             _articleRepository = articleRepository;
             _logger = logger;
         }
@@ -96,6 +99,13 @@ namespace NorebaseLikeFeature.Application.Services
             var response = new Response<LikeResponse>();
             try
             {
+                if (!await _likeRateLimiter.CanPerformLikeActionAsync(userId))
+                {
+                    response.StatusCode = StatusCodes.Status429TooManyRequests;
+                    response.Message = Constants.MaximumNumberOfLikeReached;
+                    return response;
+                }
+
                 var article = await _articleRepository.GetByIdAsync(articleId);
                 if (article is null)
                 {

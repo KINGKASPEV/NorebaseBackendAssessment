@@ -5,10 +5,12 @@ using NorebaseLikeFeature.Application.Interfaces.IRepositories;
 using NorebaseLikeFeature.Application.Interfaces.IServices;
 using NorebaseLikeFeature.Application.Middlewares;
 using NorebaseLikeFeature.Application.Services;
+using NorebaseLikeFeature.Domain.RateLimiter;
 using NorebaseLikeFeature.Domain.User;
 using NorebaseLikeFeature.Persistence.Context;
 using NorebaseLikeFeature.Persistence.Repositories;
 using StackExchange.Redis;
+using System.Collections.Concurrent;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -31,6 +33,12 @@ builder.Services.AddScoped<ILikeService, LikeService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IArticleRepository, ArticleRepository>();
 builder.Services.AddScoped<IArticleService, ArticleService>();
+
+// Register the ConcurrentDictionary as a singleton
+builder.Services.AddSingleton<ConcurrentDictionary<string, RateLimitInfo>>();
+
+// Register the like rate limiter
+builder.Services.AddSingleton<ILikeRateLimiter, LikeRateLimiter>();
 
 // Identity configuration
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
@@ -69,7 +77,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-app.UseCustomRateLimiter();
+app.UseCustomRateLimiter(maxRequests: 100, resetPeriod: TimeSpan.FromMinutes(1));
 
 app.UseAuthentication();
 app.UseAuthorization();

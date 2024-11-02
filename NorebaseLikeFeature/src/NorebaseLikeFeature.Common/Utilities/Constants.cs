@@ -16,5 +16,6 @@
         public const string ArticleUpdateSuccessMessage = "Article updated successfully";
         public const string ArticleDeletionSuccessMessage = "Article deleted successfully";
         public const string NoArticlesFoundMessage = "No articles found";
+        public const string MaximumNumberOfLikeReached = "You've reached the maximum number of like actions. Please try again later.";
     }
 }
