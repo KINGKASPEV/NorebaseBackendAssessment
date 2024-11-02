@@ -37,31 +37,56 @@ namespace NorebaseLikeFeature.Application.Services
             var response = new Response<ArticleResponse>();
             try
             {
-                var db = _redis.GetDatabase();
                 var cacheKey = $"article:{articleId}";
-                var cachedArticle = await db.StringGetAsync(cacheKey);
+                Article article = null;
 
-                Article article;
-                if (!cachedArticle.HasValue)
+                try
+                {
+                    var db = _redis.GetDatabase();
+                    var cachedArticle = await db.StringGetAsync(cacheKey);
+
+                    if (cachedArticle.HasValue)
+                    {
+                        article = System.Text.Json.JsonSerializer.Deserialize<Article>(cachedArticle);
+                    }
+                }
+                catch (RedisConnectionException ex)
+                {
+                    _logger.LogWarning(ex, "Redis connection failed for article {ArticleId}. Falling back to database.", articleId);
+                }
+
+                if (article is null)
                 {
                     article = await _repository.GetByIdAsync(articleId);
-                    if (article is null)
+
+                    if (article is not null)
                     {
-                        response.StatusCode = StatusCodes.Status404NotFound;
-                        response.Message = Constants.ArticleNotFoundMessage;
-                        return response;
+                        try
+                        {
+                            var db = _redis.GetDatabase();
+                            await db.StringSetAsync(
+                                cacheKey,
+                                System.Text.Json.JsonSerializer.Serialize(article),
+                                TimeSpan.FromMinutes(5)
+                            );
+                        }
+                        catch (RedisException ex)
+                        {
+                            _logger.LogWarning(ex, "Failed to cache article {ArticleId}", articleId);
+                        }
                     }
-                    await db.StringSetAsync(cacheKey, System.Text.Json.JsonSerializer.Serialize(article), TimeSpan.FromMinutes(5));
                 }
-                else
+
+                if (article is null)
                 {
-                    article = System.Text.Json.JsonSerializer.Deserialize<Article>(cachedArticle);
+                    response.StatusCode = StatusCodes.Status404NotFound;
+                    response.Message = Constants.ArticleNotFoundMessage;
+                    return response;
                 }
 
                 response.StatusCode = StatusCodes.Status200OK;
                 response.Message = Constants.SuccessMessage;
                 response.Data = MapToArticleResponse(article);
-
                 return response;
             }
             catch (Exception ex)
@@ -178,9 +203,15 @@ namespace NorebaseLikeFeature.Application.Services
                 article.Content = request.Content;
 
                 var updatedArticle = await _repository.UpdateAsync(article);
-
-                var db = _redis.GetDatabase();
-                await db.KeyDeleteAsync($"article:{articleId}");
+                try
+                {
+                    var db = _redis.GetDatabase();
+                    await db.KeyDeleteAsync($"article:{articleId}");
+                }
+                catch (RedisException ex)
+                {
+                    _logger.LogWarning(ex, "Redis server unavailable for cache invalidation in UpdateArticleAsync, articleId: {ArticleId}", articleId);
+                }
 
                 response.StatusCode = StatusCodes.Status200OK;
                 response.Message = Constants.ArticleUpdateSuccessMessage;
@@ -226,9 +257,15 @@ namespace NorebaseLikeFeature.Application.Services
                 }
 
                 await _repository.DeleteAsync(articleId);
-
-                var db = _redis.GetDatabase();
-                await db.KeyDeleteAsync($"article:{articleId}");
+                try
+                {
+                    var db = _redis.GetDatabase();
+                    await db.KeyDeleteAsync($"article:{articleId}");
+                }
+                catch (RedisException ex)
+                {
+                    _logger.LogWarning(ex, "Redis server unavailable for cache invalidation in UpdateArticleAsync, articleId: {ArticleId}", articleId);
+                }
 
                 response.StatusCode = StatusCodes.Status200OK;
                 response.Message = Constants.ArticleDeletionSuccessMessage;

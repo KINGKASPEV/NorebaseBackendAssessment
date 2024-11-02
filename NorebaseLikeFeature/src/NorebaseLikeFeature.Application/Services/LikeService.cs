@@ -63,14 +63,22 @@ namespace NorebaseLikeFeature.Application.Services
                 var cachedCount = await db.StringGetAsync(cacheKey);
 
                 int totalLikes;
-                if (!cachedCount.HasValue)
+                try
                 {
-                    totalLikes = await _repository.GetLikeCountAsync(articleId);
-                    await db.StringSetAsync(cacheKey, totalLikes, TimeSpan.FromMinutes(5));
+                    if (!cachedCount.HasValue)
+                    {
+                        totalLikes = await _repository.GetLikeCountAsync(articleId);
+                        await db.StringSetAsync(cacheKey, totalLikes, TimeSpan.FromMinutes(5));
+                    }
+                    else
+                    {
+                        totalLikes = (int)cachedCount;
+                    }
                 }
-                else
+                catch (RedisConnectionException ex)
                 {
-                    totalLikes = (int)cachedCount;
+                    _logger.LogError(ex, "Redis server is unavailable. Falling back to database for like count.");
+                    totalLikes = await _repository.GetLikeCountAsync(articleId);
                 }
 
                 var hasUserLiked = await _repository.HasUserLikedAsync(articleId, userId);
@@ -137,11 +145,19 @@ namespace NorebaseLikeFeature.Application.Services
                         CreatedAt = DateTime.UtcNow
                     });
                 }
-
-                var db = _redis.GetDatabase();
-                var cacheKey = $"article:{articleId}:likes";
-                var totalLikes = await _repository.GetLikeCountAsync(articleId);
-                await db.StringSetAsync(cacheKey, totalLikes, TimeSpan.FromMinutes(5));
+                int totalLikes;
+                try
+                {
+                    var db = _redis.GetDatabase();
+                    var cacheKey = $"article:{articleId}:likes";
+                    totalLikes = await _repository.GetLikeCountAsync(articleId);
+                    await db.StringSetAsync(cacheKey, totalLikes, TimeSpan.FromMinutes(5));
+                }
+                catch (RedisConnectionException ex)
+                {
+                    _logger.LogError(ex, "Redis server is unavailable. Falling back to database for like count.");
+                    totalLikes = await _repository.GetLikeCountAsync(articleId);
+                }
 
                 response.StatusCode = StatusCodes.Status200OK;
                 response.Message = Constants.SuccessMessage;

@@ -23,9 +23,46 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("norebaseConnection")));
 
-// Redis configuration
+/// Redis configuration
 builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
-    ConnectionMultiplexer.Connect(builder.Configuration.GetConnectionString("Redis")));
+{
+    var logger = sp.GetRequiredService<ILogger<Program>>();
+    var redisConnection = builder.Configuration.GetConnectionString("Redis");
+
+    try
+    {
+        var multiplexer = ConnectionMultiplexer.Connect(redisConnection);
+
+        multiplexer.ConnectionFailed += (sender, args) =>
+        {
+            logger.LogError("Redis connection failed. {FailureType}: {Exception}",
+                args.FailureType,
+                args.Exception?.Message);
+        };
+
+        multiplexer.ConnectionRestored += (sender, args) =>
+        {
+            logger.LogInformation("Redis connection restored.");
+        };
+
+        multiplexer.ErrorMessage += (sender, args) =>
+        {
+            logger.LogWarning("Redis error: {Message}", args.Message);
+        };
+
+        return multiplexer;
+    }
+    catch (RedisConnectionException ex)
+    {
+        logger.LogError(ex, "Failed to connect to Redis server during startup. Application will continue without caching.");
+
+        return ConnectionMultiplexer.Connect("localhost", config =>
+        {
+            config.AbortOnConnectFail = false;
+            config.ClientName = "Fallback";
+        });
+    }
+});
 
 // Repository and Service registration
 builder.Services.AddScoped<IArticleLikeRepository, ArticleLikeRepository>();
