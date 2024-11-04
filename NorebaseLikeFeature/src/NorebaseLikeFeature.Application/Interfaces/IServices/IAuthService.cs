@@ -7,5 +7,6 @@ namespace NorebaseLikeFeature.Application.Interfaces.IServices
     public interface IAuthService
     {
         Task<Response<RegisterResponse>> RegisterAsync(RegisterRequest request);
+        Task<Response<LoginResponse>> LoginAsync(LoginRequest request);
     }
 }

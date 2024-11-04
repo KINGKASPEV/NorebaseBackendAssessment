@@ -1,10 +1,12 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using NorebaseLikeFeature.Application.Interfaces.IServices;
 
 namespace NorebaseLikeFeature.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class LikesController : ControllerBase
     {
         private readonly ILikeService _likeService;

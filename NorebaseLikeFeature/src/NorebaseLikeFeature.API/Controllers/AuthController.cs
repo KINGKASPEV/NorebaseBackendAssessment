@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using NorebaseLikeFeature.Application.DTOs.Auth;
 using NorebaseLikeFeature.Application.Interfaces.IServices;
 
@@ -15,6 +16,7 @@ namespace NorebaseLikeFeature.API.Controllers
             _authService = authService;
         }
 
+        [AllowAnonymous]
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] RegisterRequest request)
         {
@@ -22,6 +24,17 @@ namespace NorebaseLikeFeature.API.Controllers
                 return StatusCode(StatusCodes.Status400BadRequest, ModelState);
 
             var response = await _authService.RegisterAsync(request);
+            return StatusCode(response.StatusCode, response);
+        }
+
+        [AllowAnonymous]
+        [HttpPost("login")]
+        public async Task<IActionResult> Login([FromBody] LoginRequest request)
+        {
+            if (!ModelState.IsValid)
+                return StatusCode(StatusCodes.Status400BadRequest, ModelState);
+
+            var response = await _authService.LoginAsync(request);
             return StatusCode(response.StatusCode, response);
         }
     }

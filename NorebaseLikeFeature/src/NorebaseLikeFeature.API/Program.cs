@@ -1,10 +1,12 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
+using NorebaseLikeFeature.API.Configurations;
 using NorebaseLikeFeature.Application.Interfaces.IRepositories;
 using NorebaseLikeFeature.Application.Interfaces.IServices;
 using NorebaseLikeFeature.Application.Middlewares;
 using NorebaseLikeFeature.Application.Services;
+using NorebaseLikeFeature.Common.Config;
 using NorebaseLikeFeature.Domain.RateLimiter;
 using NorebaseLikeFeature.Domain.User;
 using NorebaseLikeFeature.Persistence.Context;
@@ -14,14 +16,27 @@ using System.Collections.Concurrent;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Identity configuration
+builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
+    .AddEntityFrameworkStores<AppDbContext>()
+    .AddDefaultTokenProviders();
+
+
 // Add services to the container
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.AddAuthenticationConfiguration(builder.Configuration);
+builder.Services.AddSwagger();
+
+
 
 // Database configuration
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("norebaseConnection")));
+
+// Register AuthSettings with configuration
+builder.Services.Configure<AuthSettings>(builder.Configuration.GetSection("AuthSettings"));
 
 /// Redis configuration
 builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
@@ -77,11 +92,6 @@ builder.Services.AddSingleton<ConcurrentDictionary<string, RateLimitInfo>>();
 // Register the like rate limiter
 builder.Services.AddSingleton<ILikeRateLimiter, LikeRateLimiter>();
 
-// Identity configuration
-builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
-    .AddEntityFrameworkStores<AppDbContext>()
-    .AddDefaultTokenProviders();
-
 builder.Services.AddHealthChecks()
     .AddDbContextCheck<AppDbContext>()
     .AddCheck("Redis", () =>
@@ -111,12 +121,12 @@ if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
+    app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "LikeFeatureAPI v1"));
 }
-
+app.UseRouting();
 app.UseHttpsRedirection();
-app.UseCustomRateLimiter(maxRequests: 100, resetPeriod: TimeSpan.FromMinutes(1));
-
 app.UseAuthentication();
+app.UseCustomRateLimiter(maxRequests: 100, resetPeriod: TimeSpan.FromMinutes(1));
 app.UseAuthorization();
 
 app.MapControllers();
